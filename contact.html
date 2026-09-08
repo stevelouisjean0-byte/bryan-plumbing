@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Contact — Bryan Plumbing</title>
-<meta name="description" content="Call Bryan Plumbing at (407) 299-9006. 3804 John Young Pkwy #2, Orlando, FL 32804. Open daily, closes 12 AM.">
+<meta name="description" content="Call Bryan Plumbing at (407) 299-9006. 3804 John Young Pkwy #2, Orlando, FL 32804. Mon–Fri 8 AM–4 PM, and open 24 hours Saturday and Sunday.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Lora:wght@400;600&display=swap">
@@ -43,7 +43,7 @@
       </div>
       <div class="detail">
         <p class="lbl">Hours</p>
-        <p class="v">Open daily · closes 12 AM</p>
+        <p class="v">Mon&ndash;Fri 8 AM&ndash;4 PM<br>Saturday &amp; Sunday, open 24 hours</p>
       </div>
     </div>
   </div>
@@ -56,12 +56,36 @@
       <p class="eyebrow">If it is an emergency</p>
       <h2 class="h-section">Shut the main first, then call.</h2>
       <p class="prose" style="margin-top: 20px; max-width: 50ch">If water is running where it should not be, close the main valve before anything else — usually at the meter or where the supply enters the house. Then open a low faucet to drain the line and call the shop.</p>
-      <p class="prose" style="margin-top: 16px; max-width: 50ch">We answer until midnight, seven days a week. Do not wait for morning.</p>
+      <p class="prose" style="margin-top: 16px; max-width: 50ch">On a Saturday or Sunday the phone is on around the clock. On a weekday the shop runs 8 AM to 4 PM. Do not wait for morning.</p>
       <div style="margin-top: 30px">
         <a class="pill pill-solid" href="tel:+14072999006">Call now</a>
       </div>
     </div>
     <img src="assets/img/process.jpg" alt="Supply piping and gauges run cleanly along a brick wall" style="aspect-ratio: 4 / 3; object-fit: cover">
+  </section>
+
+  <hr class="rule">
+
+  <section class="section">
+    <p class="eyebrow">The week</p>
+    <h2 class="h-section">Eight to four on weekdays. Around the clock at weekends.</h2>
+    <div class="hours-wrap">
+      <table class="hours">
+        <caption>As published on the Google listing. Today&rsquo;s row marks itself from the clock on your device.</caption>
+        <thead><tr><th scope="col">Day</th><th scope="col" style="text-align: right">Hours</th></tr></thead>
+        <tbody>
+          <tr data-day="1"><th scope="row">Monday</th><td>8 AM &ndash; 4 PM</td></tr>
+          <tr data-day="2"><th scope="row">Tuesday</th><td>8 AM &ndash; 4 PM</td></tr>
+          <tr data-day="3"><th scope="row">Wednesday</th><td>8 AM &ndash; 4 PM</td></tr>
+          <tr data-day="4"><th scope="row">Thursday</th><td>8 AM &ndash; 4 PM</td></tr>
+          <tr data-day="5"><th scope="row">Friday</th><td>8 AM &ndash; 4 PM</td></tr>
+          <tr data-day="6"><th scope="row">Saturday</th><td class="allday">Open 24 hours</td></tr>
+          <tr data-day="0"><th scope="row">Sunday</th><td class="allday">Open 24 hours</td></tr>
+        </tbody>
+      </table>
+      <p class="openline" data-now data-open="unknown"><b data-now-label>Mon&ndash;Fri 8 AM&ndash;4 PM</b> <span data-now-detail>&middot; Saturday and Sunday, open 24 hours</span></p>
+      <p class="prose" style="margin-top: 18px; max-width: 52ch">Worth reading twice, because it is the opposite of what most people assume. A burst pipe at two in the morning on a Sunday is inside the published hours. A dripping tap at five on a Tuesday is not.</p>
+    </div>
   </section>
 
   <hr class="rule">
@@ -127,13 +151,66 @@
         <ul>
           <li><a href="tel:+14072999006">(407) 299-9006</a></li>
           <li><a href="contact.html">3804 John Young Pkwy #2<br>Orlando, FL 32804</a></li>
-          <li>Open daily · closes 12 AM</li>
+          <li>Mon&ndash;Fri 8 AM&ndash;4 PM<br>Sat &amp; Sun open 24 hours</li>
         </ul>
       </div>
     </div>
     <p class="footer-fine">Bryan Plumbing LLC · Veteran-owned · Orlando, FL · Placeholder photography via Unsplash &amp; Pexels — swap in real job photos anytime.</p>
   </div>
 </footer>
+
+<script>
+/* The published week: weekdays 8 AM to 4 PM, Saturday and Sunday open 24
+   hours. Minutes from midnight; a 24-hour day is [0, 1440). */
+(function () {
+  var HOURS = {
+    0: [0, 1440],   // Sunday    open 24 hours
+    1: [480, 960],  // Monday    8 - 4
+    2: [480, 960],
+    3: [480, 960],
+    4: [480, 960],
+    5: [480, 960],
+    6: [0, 1440]    // Saturday  open 24 hours
+  };
+  var DAY = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  function hhmm(m) {
+    var h = Math.floor(m / 60), mm = m % 60, ap = h >= 12 ? "PM" : "AM", hh = h % 12;
+    if (hh === 0) hh = 12;
+    return hh + (mm ? ":" + (mm < 10 ? "0" + mm : mm) : "") + " " + ap;
+  }
+  function nextOpen(day, mins) {
+    var t = HOURS[day];
+    if (t && mins < t[0]) return { when: "today", at: t[0] };
+    for (var i = 1; i <= 7; i++) {
+      var d = (day + i) % 7;
+      if (HOURS[d]) return { when: i === 1 ? "tomorrow" : DAY[d], at: HOURS[d][0] };
+    }
+    return null;
+  }
+  function update() {
+    var now = new Date(), day = now.getDay(), mins = now.getHours() * 60 + now.getMinutes();
+    var t = HOURS[day], open = !!t && mins >= t[0] && mins < t[1];
+    var allDay = !!t && t[0] === 0 && t[1] === 1440;
+    var box = document.querySelector("[data-now]");
+    if (box) {
+      box.setAttribute("data-open", open ? "yes" : "no");
+      var lab = box.querySelector("[data-now-label]"), det = box.querySelector("[data-now-detail]");
+      if (lab) lab.textContent = open ? "Open now" : "Closed now";
+      if (det) {
+        if (open && allDay) det.textContent = "· open all day and all night today";
+        else if (open) det.textContent = "· closes " + hhmm(t[1]);
+        else { var nx = nextOpen(day, mins); det.textContent = nx ? "· opens " + nx.when + " " + hhmm(nx.at) : ""; }
+      }
+    }
+    var rows = document.querySelectorAll("[data-day]");
+    for (var i = 0; i < rows.length; i++) {
+      rows[i].setAttribute("data-today", Number(rows[i].getAttribute("data-day")) === day ? "yes" : "no");
+    }
+  }
+  update();
+  setInterval(update, 60000);
+})();
+</script>
 
 </body>
 </html>
